@@ -14,10 +14,11 @@ Created PROMPTS.md file in the workspace root to track user prompts and response
 
 **User Request:**
 We are going to build a Cloudfare customer query agent that will resolve customer issues. Here's the workflow:
+
 - Take chat input from customer
 - Identify the customer (existing, new, past queries)
 - Issue classification
--- product information, tech suppport, refunds/returns, complaints/feedback, legal, payments, account management, delivery, security, and other
+  -- product information, tech suppport, refunds/returns, complaints/feedback, legal, payments, account management, delivery, security, and other
 - Perform sentiment analysis and urgency analysis
 - Generate a ticket and append to a D1 database (id, customer_id, category, sentiment, urgency, status, transcript (can be a blob file or another file), created_at)
 - decide whether to resolve on your own or escalate to a higher level
@@ -33,6 +34,7 @@ Recorded the workflow request for a Cloudflare customer query agent in `PROMPTS.
 
 **User Request:**
 Create the following agents for the workflow:
+
 - ChatAgent to take customer input
 - ClassificationAgent to classify issue, analyse sentiment and urgency
 - TicketAgent to handle the CRUD for tickets and historical queries
@@ -68,6 +70,7 @@ Removed `ensureTicketTable` method from `TicketModule` assuming the tickets tabl
 
 **User Request:**
 Add these api endpoints to the existing worker:
+
 - '/api/tickets' will query the tickets from D1 database using websocket
 - '/api/stats' will retrieve statistics about the tickets such as totak tickets, total open, closed, pending, escalated, and similar dashboard content
 

@@ -8,13 +8,13 @@ export default defineConfig({
   plugins: [agents(), react(), tailwindcss()],
   server: {
     proxy: {
-      '/api': {
+      "/api": {
         target: "http://localhost:8787",
-        ws: false,
-      } ,
-      '/agents': {
+        ws: false
+      },
+      "/agents": {
         target: "http://localhost:8787",
-        ws: true,
+        ws: true
       }
     }
   }

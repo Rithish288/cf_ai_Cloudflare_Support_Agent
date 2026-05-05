@@ -1,10 +1,5 @@
 import { useEffect, useState } from "react";
-import {
-  Badge,
-  Empty,
-  Surface,
-  Text
-} from "@cloudflare/kumo";
+import { Badge, Empty, Surface, Text } from "@cloudflare/kumo";
 
 interface Ticket {
   id: string;
@@ -34,16 +29,15 @@ export function Admin() {
   const fetchData = async () => {
     try {
       const [statsRes, ticketsRes] = await Promise.all([
-        fetch('/api/stats', {method: 'GET'}),
-        fetch('/api/tickets', {method: 'GET'} )
+        fetch("/api/stats", { method: "GET" }),
+        fetch("/api/tickets", { method: "GET" })
       ]);
       const statsData: Stats = await statsRes.json();
       const ticketsData: Ticket[] = await ticketsRes.json();
       setStats(statsData);
       setTickets(ticketsData);
-      
     } catch (error) {
-      console.error('Failed to fetch data:', error);
+      console.error("Failed to fetch data:", error);
     } finally {
       setLoading(false);
     }
@@ -67,27 +61,45 @@ export function Admin() {
     <div className="p-6 max-w-7xl mx-auto">
       <div className="mb-8">
         <div className="text-lg font-bold mb-6">Ticket Dashboard</div>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-8">
           <Surface className="p-4">
-            <Text size="sm" variant="secondary">Total Tickets</Text>
+            <Text size="sm" variant="secondary">
+              Total Tickets
+            </Text>
             <div className="text-lg font-bold">{stats?.total || 0}</div>
           </Surface>
           <Surface className="p-4">
-            <Text size="sm" variant="secondary">Open</Text>
-            <div className="text-lg font-bold text-green-600">{stats?.open || 0}</div>
+            <Text size="sm" variant="secondary">
+              Open
+            </Text>
+            <div className="text-lg font-bold text-green-600">
+              {stats?.open || 0}
+            </div>
           </Surface>
           <Surface className="p-4">
-            <Text size="sm" variant="secondary">Closed</Text>
-            <div className="text-lg font-bold text-gray-600">{stats?.closed || 0}</div>
+            <Text size="sm" variant="secondary">
+              Closed
+            </Text>
+            <div className="text-lg font-bold text-gray-600">
+              {stats?.closed || 0}
+            </div>
           </Surface>
           <Surface className="p-4">
-            <Text size="sm" variant="secondary">Pending</Text>
-            <div className="text-lg font-bold text-yellow-600">{stats?.pending || 0}</div>
+            <Text size="sm" variant="secondary">
+              Pending
+            </Text>
+            <div className="text-lg font-bold text-yellow-600">
+              {stats?.pending || 0}
+            </div>
           </Surface>
           <Surface className="p-4">
-            <Text size="sm" variant="secondary">Escalated</Text>
-            <div className="text-lg font-bold text-red-600">{stats?.escalated || 0}</div>
+            <Text size="sm" variant="secondary">
+              Escalated
+            </Text>
+            <div className="text-lg font-bold text-red-600">
+              {stats?.escalated || 0}
+            </div>
           </Surface>
         </div>
       </div>
@@ -113,32 +125,51 @@ export function Admin() {
               <tbody>
                 {tickets.map((ticket) => (
                   <tr key={ticket.id} className="border-b">
-                    <td className="p-2 font-mono text-xs">{ticket.id.slice(0, 8)}...</td>
+                    <td className="p-2 font-mono text-xs">
+                      {ticket.id.slice(0, 8)}...
+                    </td>
                     <td className="p-2">{ticket.customer_email}</td>
                     <td className="p-2">
                       <Badge variant="secondary">{ticket.category}</Badge>
                     </td>
                     <td className="p-2">
-                      <Badge 
-                        variant={ticket.sentiment === 'positive' ? 'success' : ticket.sentiment === 'negative' ? 'error' : 'secondary'}
+                      <Badge
+                        variant={
+                          ticket.sentiment === "positive"
+                            ? "success"
+                            : ticket.sentiment === "negative"
+                              ? "error"
+                              : "secondary"
+                        }
                       >
                         {ticket.sentiment}
                       </Badge>
                     </td>
                     <td className="p-2">
-                      <Badge 
-                        variant={ticket.urgency === 'high' ? 'error' : ticket.urgency === 'medium' ? 'warning' : 'secondary'}
+                      <Badge
+                        variant={
+                          ticket.urgency === "high"
+                            ? "error"
+                            : ticket.urgency === "medium"
+                              ? "warning"
+                              : "secondary"
+                        }
                       >
                         {ticket.urgency}
                       </Badge>
                     </td>
                     <td className="p-2">
-                      <Badge 
+                      <Badge
                         variant={
-                          ticket.status === 'open' ? 'success' :
-                          ticket.status === 'closed' ? 'neutral' :
-                          ticket.status === 'pending' ? 'warning' :
-                          ticket.status === 'escalated' ? 'error' : 'secondary'
+                          ticket.status === "open"
+                            ? "success"
+                            : ticket.status === "closed"
+                              ? "neutral"
+                              : ticket.status === "pending"
+                                ? "warning"
+                                : ticket.status === "escalated"
+                                  ? "error"
+                                  : "secondary"
                         }
                       >
                         {ticket.status}

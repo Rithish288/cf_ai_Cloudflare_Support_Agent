@@ -3,75 +3,70 @@
  * https://developers.cloudflare.com/workers/wrangler/configuration/
  */
 {
-	"$schema": "node_modules/wrangler/config-schema.json",
-	"name": "cf-ai-chat-agent",
-	"main": "src/server.ts",
-	"compatibility_date": "2026-03-02",
-	"compatibility_flags": [
-		"nodejs_compat"
-	],
-	"ai": {
-		"binding": "AI",
-		"remote": true
-	},
-	"d1_databases": [
-		{
-			"binding": "DB",
-			"database_name": "tickets_db",
-			"database_id": "84a194bc-61e3-481c-bd76-fb6e05f6855a"
-		}
-	],
-	"kv_namespaces": [
-		{
-			"binding": "DOCS_CACHE",
-			"id": "99083761a336424596212df9f91a8789"
-		}
-	],
-	"assets": {
-		"directory": "./public",
-		"not_found_handling": "single-page-application",
-		"run_worker_first": [
-			"/agents/*",
-			"/oauth/*"
-		]
-	},
-	"durable_objects": {
-		"bindings": [
-			{
-				"class_name": "ChatAgent",
-				"name": "ChatAgent"
-			}
-		]
-	},
-	"observability": {
-		"enabled": true
-	},
-	"migrations": [{ "tag": "v1", "new_sqlite_classes": ["ChatAgent"] }],
-	"upload_source_maps": true,
-	"dev": {
-		"port": 8787
-	}
-	/**
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "cf-ai-chat-agent",
+  "main": "src/server.ts",
+  "compatibility_date": "2026-03-02",
+  "compatibility_flags": ["nodejs_compat"],
+  "ai": {
+    "binding": "AI",
+    "remote": true
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "tickets_db",
+      "database_id": "84a194bc-61e3-481c-bd76-fb6e05f6855a"
+    }
+  ],
+  "kv_namespaces": [
+    {
+      "binding": "DOCS_CACHE",
+      "id": "99083761a336424596212df9f91a8789"
+    }
+  ],
+  "assets": {
+    "directory": "./public",
+    "not_found_handling": "single-page-application",
+    "run_worker_first": ["/agents/*", "/oauth/*"]
+  },
+  "durable_objects": {
+    "bindings": [
+      {
+        "class_name": "ChatAgent",
+        "name": "ChatAgent"
+      }
+    ]
+  },
+  "observability": {
+    "enabled": true
+  },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["ChatAgent"] }],
+  "upload_source_maps": true,
+  "dev": {
+    "port": 8787
+  }
+  /**
    * Smart Placement
    * https://developers.cloudflare.com/workers/configuration/smart-placement/#smart-placement
    */
-	// "placement": {  "mode": "smart" }
-	/**
+  // "placement": {  "mode": "smart" }
+  /**
    * Bindings
    * Bindings allow your Worker to interact with resources on the Cloudflare Developer Platform, including
    * databases, object storage, AI inference, real-time communication and more.
    * https://developers.cloudflare.com/workers/runtime-apis/bindings/
    */
-	/**
+  /**
    * Environment Variables
    * https://developers.cloudflare.com/workers/wrangler/configuration/#environment-variables
    * Note: Use secrets to store sensitive data.
    * https://developers.cloudflare.com/workers/configuration/secrets/
    */
-	// "vars": {  "MY_VARIABLE": "production_value" }
-	/**
+  // "vars": {  "MY_VARIABLE": "production_value" }
+  /**
    * Service Bindings (communicate between multiple Workers)
    * https://developers.cloudflare.com/workers/wrangler/configuration/#service-bindings
    */
-	// "services": [  {   "binding": "MY_SERVICE",   "service": "my-service"  } ]
+  // "services": [  {   "binding": "MY_SERVICE",   "service": "my-service"  } ]
 }
