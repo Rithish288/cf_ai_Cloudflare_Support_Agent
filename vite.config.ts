@@ -5,5 +5,17 @@ import { defineConfig } from "vite";
 import agents from "agents/vite";
 
 export default defineConfig({
-  plugins: [agents(), react(), cloudflare(), tailwindcss()]
+  plugins: [agents(), react(), tailwindcss()],
+  server: {
+    proxy: {
+      '/api': {
+        target: "http://localhost:8787",
+        ws: false,
+      } ,
+      '/agents': {
+        target: "http://localhost:8787",
+        ws: true,
+      }
+    }
+  }
 });
