@@ -92,17 +92,19 @@ export class ChatAgent extends AIChatAgent<Env> {
     const workersai = createWorkersAI({ binding: this.env.AI });
 
     const result = streamText({
-      model: workersai("@cf/meta/llama-4-scout-17b-16e-instruct"),
-      // model: aigateway(openai.chat("gpt-4o")),
+      model: workersai("@cf/moonshotai/kimi-k2.5"),
       system: `
       You are a Cloudflare customer support agent. Be professional, empathetic, and concise.
 
 EVERY conversation, in order:
-1. Greet by first name, acknowledge the issue
-2. Call createTicket (category, urgency, sentiment, summary) — always, even if escalating
-3. If escalation condition met → call escalateToHuman, else call fetchCloudflareDoc
-4. Answer from doc content only — never from memory
-5. Confirm resolution → close ticket or escalate
+1. Greet warmly and acknowledge the issue
+2. Ask the customer for their email to check for existing tickets and provide personalized support (REQUIRED before creating any tickets)
+3. Use identifyCustomer tool to check previous tickets once you have email
+4. Classify the issue (category, sentiment, urgency) and call createTicket with customer details
+5. If escalation needed → call escalateToHuman, else fetchCloudflareDoc for answer
+6. Answer from doc content only — never from memory
+7. ASK the customer if their issue is resolved before closing the ticket
+8. Only close ticket after customer confirms resolution
 
 ESCALATE immediately if:
 - Security, fraud, or account breach
@@ -126,7 +128,9 @@ CANNOT DO — always escalate:
 Account access, refund processing, invoice details, account suspension, security incidents
 
 TONE: Acknowledge emotion before solving. 2-4 sentences for simple issues.
-Never invent product details, pricing, or policy. Never promise specific outcomes.`,
+Never invent product details, pricing, or policy. Never promise specific outcomes.
+`,
+      // Prune old tool calls to save tokens on long conversations
       // Prune old tool calls to save tokens on long conversations
       messages: pruneMessages({
         messages: inlineDataUrls(await convertToModelMessages(this.messages)),
@@ -135,9 +139,9 @@ Never invent product details, pricing, or policy. Never promise specific outcome
       tools: {
         // Ticket management tools
         createTicket: tool({
-          description: "Create a new support ticket for a customer issue",
+          description: "Create a new support ticket for a customer issue. REQUIRES customer_email - ask for it first if not provided.",
           inputSchema: z.object({
-            customer_email: z.string().describe("Customer email address"),
+            customer_email: z.string().describe("Customer email address - REQUIRED, ask user if not known"),
             category: z.string().describe("Issue category"),
             sentiment: z.string().describe("Sentiment analysis"),
             urgency: z.string().describe("Urgency level"),
@@ -147,7 +151,12 @@ Never invent product details, pricing, or policy. Never promise specific outcome
               .optional()
               .describe("Ticket status, defaults to pending")
           }),
-          execute: async (params) => TicketModule.createTicket(this.env, params)
+          execute: async (params) => {
+            if (!params.customer_email || params.customer_email.trim() === '') {
+              throw new Error("customer_email is required to create a ticket");
+            }
+            return TicketModule.createTicket(this.env, params);
+          }
         }),
 
         getTicket: tool({
@@ -159,13 +168,18 @@ Never invent product details, pricing, or policy. Never promise specific outcome
         }),
 
         updateTicketStatus: tool({
-          description: "Update the status of a ticket",
+          description: "Update the status of a ticket. Only close tickets after customer confirms resolution. Use 'pending' for escalation.",
           inputSchema: z.object({
             id: z.string().describe("Ticket ID"),
-            status: z.string().describe("New status")
+            status: z.string().describe("New status - use 'closed' only after customer confirms resolution")
           }),
-          execute: async ({ id, status }) =>
-            TicketModule.updateTicketStatus(this.env, id, status)
+          execute: async ({ id, status }) => {
+            if (status === 'closed') {
+              // Add a warning that this should only be done after confirmation
+              console.warn(`Closing ticket ${id} - ensure customer confirmed resolution`);
+            }
+            return TicketModule.updateTicketStatus(this.env, id, status);
+          }
         }),
 
         appendTranscript: tool({
@@ -258,7 +272,7 @@ Never invent product details, pricing, or policy. Never promise specific outcome
           }
         })
       },
-      stopWhen: stepCountIs(5),
+      stopWhen: stepCountIs(8),
       abortSignal: options?.abortSignal
     });
 

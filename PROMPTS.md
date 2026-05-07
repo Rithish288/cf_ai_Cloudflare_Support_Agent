@@ -87,14 +87,3 @@ Create a delete button in the chat screen with a trashcan icon, that deletes the
 **Summary:**
 Created `src/chat.tsx` containing Chat component, ThemeToggle, ToolPartView, and attachment helpers. Updated `src/app.tsx` to import Chat and ThemeToggle from chat.tsx. Added "Delete" button to chat header with confirmation dialog that clears message history. Added "New Chat" button to nav bar (shows only in chat mode) that generates new chat instance via key rotation. Delete functionality clears chat from UI; Durable Object persistence handled by existing backend. All components properly exported and no compilation errors.
 
----
-
-## Prompt 11: Clean HTML Fetch Content for Non-Product Docs
-
-**User Request:**
-When fetching non-product documents, the documents tend to be very large and usually html noise(tags, metadata, whitespace). Update the fetchWithCache method to remove scripts, style tags, head tags, nav tag and any other tags to strip the document down to its core content in the body tag alone
-
-**Summary:**
-Updated `src/server.ts` `fetchWithCache` to clean HTML responses before caching. Added `cleanHtmlContent` to parse HTML, remove noise elements (`script`, `style`, `head`, `nav`, `header`, `footer`, etc.), strip noisy classes/IDs, extract the body/main content, and normalize whitespace. This ensures non-product document content is reduced to its core text for AI consumption.
-
----

@@ -122,6 +122,22 @@ function LoadingAnimation() {
 }
 // ── Tool rendering ────────────────────────────────────────────────────
 
+function isToolCallJson(text: string) {
+  const trimmed = text.trim();
+  if (!trimmed.startsWith("{")) return false;
+  try {
+    const parsed = JSON.parse(trimmed);
+    return (
+      parsed &&
+      typeof parsed === "object" &&
+      (typeof parsed.name === "string" || typeof parsed.toolName === "string") &&
+      (parsed.parameters || parsed.params)
+    );
+  } catch {
+    return false;
+  }
+}
+
 function ToolPartView({ part }: { part: UIMessage["parts"][number] }) {
   if (!isToolUIPart(part)) return null;
   const toolName = getToolName(part);
@@ -452,6 +468,11 @@ export const Chat = forwardRef<{ clearHistory: () => void }, ChatProps>(
                         text.match(/^\d+:/) &&
                         text.includes("error")
                       ) {
+                        return null;
+                      }
+
+                      // Hide raw tool-call JSON that the model may output as plain text
+                      if (!isUser && isToolCallJson(text)) {
                         return null;
                       }
 
