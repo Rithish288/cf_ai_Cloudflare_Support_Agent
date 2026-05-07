@@ -7,6 +7,22 @@ export class TicketModule {
     return db;
   }
 
+  private static async ensureTicketsTable(env: Env) {
+    await this.getDb(env).prepare(
+      `CREATE TABLE IF NOT EXISTS tickets (
+        id TEXT PRIMARY KEY,
+        customer_email TEXT NOT NULL,
+        category TEXT NOT NULL,
+        sentiment TEXT NOT NULL,
+        urgency TEXT NOT NULL,
+        status TEXT NOT NULL,
+        transcript TEXT NOT NULL,
+        created_at TEXT NOT NULL,
+        updated_at TEXT NOT NULL
+      )`
+    ).run();
+  }
+
   static async createTicket(
     env: Env,
     {
@@ -25,6 +41,7 @@ export class TicketModule {
       status?: string;
     }
   ) {
+    await this.ensureTicketsTable(env);
     const id = crypto.randomUUID();
     const createdAt = new Date().toISOString();
     await this.getDb(env)

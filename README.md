@@ -6,6 +6,98 @@ Uses the starter template for building AI chat agents on Cloudflare, powered by 
 
 This repository implements a Cloudflare AI support agent built on the Agents SDK and Workers AI. It is designed to handle customer support conversations, classify issues, create and manage tickets, fetch Cloudflare documentation, and escalate when needed.
 
+```mermaid
+flowchart LR;
+
+%% Actors
+
+User([User]);
+
+%% Frontend
+
+subgraph Frontend["Frontend React SPA"]
+
+    ChatUI["Chat UI"];
+    AgentClient["Agent Client"];
+    AdminUI["Admin Dashboard"];
+
+end;
+
+%% Workers Runtime
+
+subgraph Workers["Cloudflare Workers Runtime"]
+
+    FetchHandler["Fetch Router"];
+
+    subgraph ChatAgent["Durable Object ChatAgent"]
+
+        SessionState["Session State"];
+        ToolExecution["AI Tool Execution"];
+        Streaming["Streaming Responses"];
+
+    end;
+
+    AIModel["Workers AI"];
+    TicketModule["Ticket Module"];
+    D1[("D1 Database")];
+    KVCache[("DOCS_CACHE")];
+    DocsRoutes["Docs Resolver"];
+
+end;
+
+%% External Services
+
+subgraph External["External Services"]
+
+    CloudflareDocs["Cloudflare Docs"];
+
+end;
+
+%% Frontend Flow
+
+User -->|Send message| ChatUI;
+
+ChatUI -->|sendMessage| AgentClient;
+
+AgentClient -->|WebSocket| FetchHandler;
+
+%% Worker Routing
+
+FetchHandler -->|Dispatch request| ChatAgent;
+
+ChatAgent -->|Stream response| FetchHandler;
+
+%% AI Execution
+
+ChatAgent -->|streamText| AIModel;
+
+%% Ticket Operations
+
+ChatAgent -->|Ticket operations| TicketModule;
+
+TicketModule -->|SQL queries| D1;
+
+%% Documentation Retrieval
+
+ChatAgent -->|Resolve route| DocsRoutes;
+
+ChatAgent -->|Get cached docs| KVCache;
+
+KVCache -->|Cache miss fetch| CloudflareDocs;
+
+CloudflareDocs -->|Return content| KVCache;
+
+%% Admin APIs
+
+AdminUI -->|Get stats| FetchHandler;
+
+AdminUI -->|Get tickets| FetchHandler;
+
+FetchHandler -->|Ticket queries| TicketModule;
+
+FetchHandler -->|Optional direct SQL| D1;
+```
+
 ### ChatAgent features
 
 - Conversational customer support flow driven by `ChatAgent`
@@ -41,21 +133,23 @@ This repository implements a Cloudflare AI support agent built on the Agents SDK
 1. Clone the repository:
 
 ```bash
-git clone https://github.com/<your-org>/cf-ai-chat-agent.git
-cd cf-ai-chat-agent
+git clone https://github.com/Rithish288/cf_ai_Cloudflare_Support_Agent.git
+cd cf_ai_Cloudflare_Support_Agent
 ```
 
 2. Install dependencies:
+
+Make sure you have the latest version of node and wrangler installed
 
 ```bash
 npm install
 ```
 
-3. Configure Cloudflare environment:
-
-- Ensure `wrangler.toml` or `wrangler.jsonc` is set up for your Cloudflare account
-- Add any required bindings for `DB`, `CHAT_STATE`, `DOCS_CACHE`, and `AI`
-- If using an external model provider, set the corresponding API key(s) in `.env`
+3. Wrangler setup
+```
+npx wrangler login
+npx wrangler dev
+```
 
 4. Start the development server:
 
